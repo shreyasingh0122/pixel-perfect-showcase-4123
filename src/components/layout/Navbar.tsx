@@ -1,21 +1,32 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Menu, X, LogOut, User as UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
-const NAV = [
+const PUBLIC_NAV = [
   { to: "/how-it-works", label: "How It Works" },
   { to: "/simulator", label: "Simulator" },
   { to: "/scenarios", label: "Scenarios" },
-  { to: "/insights", label: "Insights" },
+] as const;
+
+const APP_NAV = [
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/simulator", label: "New Simulation" },
+  { to: "/history", label: "History" },
+  { to: "/strategy", label: "Strategy" },
 ] as const;
 
 export function Navbar() {
+  const { user, displayName, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+
+  const nav = user ? APP_NAV : PUBLIC_NAV;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -34,9 +45,10 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        scrolled ? "glass-strong border-b" : "border-b border-transparent"
-      }`}
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        scrolled ? "glass-strong border-b" : "border-b border-transparent",
+      )}
     >
       <nav
         aria-label="Main navigation"
@@ -47,7 +59,7 @@ export function Navbar() {
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <li key={item.to}>
               <Link
                 to={item.to}
@@ -61,20 +73,37 @@ export function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              toast("Accounts aren't connected yet", {
-                description: "FutureLens runs in demo mode — your work is saved in this browser.",
-              })
-            }
-          >
-            Sign In
-          </Button>
-          <Button asChild variant="hero" size="sm">
-            <Link to="/simulator">Start Exploring</Link>
-          </Button>
+          {user ? (
+            <>
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <UserIcon size={16} aria-hidden />
+                <span className="max-w-24 truncate">{displayName || user.email}</span>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  await signOut();
+                  navigate({ to: "/" });
+                }}
+              >
+                <LogOut size={16} />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/signin">Sign In</Link>
+              </Button>
+              <Button asChild variant="hero" size="sm">
+                <Link to="/signup">Start Exploring</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -92,7 +121,7 @@ export function Navbar() {
       {open && (
         <div id="mobile-nav" className="glass-strong border-t px-4 pb-5 pt-3 md:hidden">
           <ul className="flex flex-col gap-1">
-            {NAV.map((item) => (
+            {nav.map((item) => (
               <li key={item.to}>
                 <Link
                   to={item.to}
@@ -105,20 +134,33 @@ export function Navbar() {
             ))}
           </ul>
           <div className="mt-4 flex flex-col gap-2">
-            <Button asChild variant="hero" className="w-full">
-              <Link to="/simulator">Start Exploring</Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() =>
-                toast("Accounts aren't connected yet", {
-                  description: "FutureLens runs in demo mode — your work is saved in this browser.",
-                })
-              }
-            >
-              Sign In
-            </Button>
+            {user ? (
+              <>
+                <Button asChild variant="hero" className="w-full">
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    await signOut();
+                    navigate({ to: "/" });
+                  }}
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="hero" className="w-full">
+                  <Link to="/signup">Start Exploring</Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full">
+                  <Link to="/signin">Sign In</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}

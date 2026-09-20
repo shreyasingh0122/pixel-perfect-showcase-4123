@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SimulationProvider } from "@/store/simulation";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -136,7 +137,8 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SimulationProvider>
+      <AuthProvider>
+        <SimulationProvider>
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1">
@@ -145,8 +147,9 @@ function RootComponent() {
           </main>
           <Footer />
         </div>
-        <Toaster />
-      </SimulationProvider>
+          <Toaster />
+        </SimulationProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

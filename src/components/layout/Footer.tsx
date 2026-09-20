@@ -34,20 +34,25 @@ export function Footer() {
           <ul className="space-y-2">
             <li className="font-medium text-foreground">Explore</li>
             <li>
-              <Link to="/insights" className="text-muted-foreground hover:text-foreground">
-                Insights
+              <Link to="/dashboard" className="text-muted-foreground hover:text-foreground">
+                Dashboard
               </Link>
             </li>
             <li>
-              <Link to="/dashboard" className="text-muted-foreground hover:text-foreground">
-                Dashboard
+              <Link to="/history" className="text-muted-foreground hover:text-foreground">
+                History
+              </Link>
+            </li>
+            <li>
+              <Link to="/strategy" className="text-muted-foreground hover:text-foreground">
+                Strategy
               </Link>
             </li>
           </ul>
         </nav>
       </div>
       <div className="border-t border-border/70 px-4 py-5 text-center text-xs text-muted-foreground sm:px-6">
-        Demo simulation — connect your simulation engine for personalised modelling.
+        Model-based scenario exploration — never a prediction of the actual future.
       </div>
     </footer>
   );
